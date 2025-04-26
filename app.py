@@ -1,3 +1,6 @@
+import os
+os.environ["STREAMLIT_WATCHER_IGNORE_FILES"] = ".*\.py$"
+
 import streamlit as st
 import torch
 import torch.nn as nn
@@ -5,49 +8,56 @@ import torchvision.transforms as transforms
 from PIL import Image
 import numpy as np
 
-# Load the trained model
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Load the trained model (Cache to prevent reloading on every refresh)
+@st.cache_resource
+def load_model():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Define the CNN architecture
-class CNN(nn.Module):
-    def __init__(self):
-        super(CNN, self).__init__()
-        self.features = nn.Sequential(
-            nn.Conv2d(3, 16, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            
-            nn.Conv2d(16, 32, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(2),
-            
-            nn.Conv2d(32, 64, kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool2d((1, 1))
-        )
-        self.classifier = nn.Linear(64, 2)  # 2 classes: Normal, Defect
+    # Define the CNN architecture
+    class CNN(nn.Module):
+        def __init__(self):
+            super(CNN, self).__init__()
+            self.features = nn.Sequential(
+                nn.Conv2d(3, 16, kernel_size=3, padding=1),
+                nn.ReLU(),
+                nn.MaxPool2d(2),
+                
+                nn.Conv2d(16, 32, kernel_size=3, padding=1),
+                nn.ReLU(),
+                nn.MaxPool2d(2),
+                
+                nn.Conv2d(32, 64, kernel_size=3, padding=1),
+                nn.ReLU(),
+                nn.AdaptiveAvgPool2d((1, 1))
+            )
+            self.classifier = nn.Linear(64, 2)  # 2 classes: Normal, Defect
 
-    def forward(self, x):
-        x = self.features(x)
-        x = x.view(x.size(0), -1)
-        x = self.classifier(x)
-        return x
+        def forward(self, x):
+            x = self.features(x)
+            x = x.view(x.size(0), -1)
+            x = self.classifier(x)
+            return x
 
-# Instantiate and load the model
-model = CNN()
-model.load_state_dict(torch.load('model.pth', map_location=device))
-model.to(device)
-model.eval()
+    # Initialize and load model state
+    model = CNN()
+    model.load_state_dict(torch.load('model.pth', map_location=device))
+    model.to(device)
+    model.eval()
 
-# Define transform
+    return model, device
+
+# Load the model once at the start
+model, device = load_model()
+
+# Define the same transform used during training
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
 ])
 
 # Streamlit UI
-st.title("🛠️ Defect Detection System")
-st.write("Upload an image to check if it's **normal** or **defective**.")
+st.title("Defect Detection System 🛠️")
+st.write("Upload an image to check if it's normal or defective.")
 
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
