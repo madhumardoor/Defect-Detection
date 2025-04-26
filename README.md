@@ -1,5 +1,5 @@
 # Defect Detection using CNN with Synthetic Augmentation
-Project Overview
+## Project Overview
 This project aims to detect manufacturing defects using a Convolutional Neural Network (CNN) trained on the MVTec Anomaly Detection Dataset (Bottle category). It includes data augmentation techniques to generate synthetic defects and improve model performance.
 
 ## Dataset
