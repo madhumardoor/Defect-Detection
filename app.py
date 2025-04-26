@@ -1,4 +1,3 @@
-
 import streamlit as st
 import torch
 import torch.nn as nn
@@ -9,7 +8,7 @@ import numpy as np
 # Load the trained model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Define the same CNN architecture you used for training
+# Define the CNN architecture
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -34,27 +33,28 @@ class CNN(nn.Module):
         x = self.classifier(x)
         return x
 
+# Instantiate and load the model
 model = CNN()
 model.load_state_dict(torch.load('model.pth', map_location=device))
 model.to(device)
 model.eval()
 
-# Define the same transform you used during training
+# Define transform
 transform = transforms.Compose([
     transforms.Resize((128, 128)),
     transforms.ToTensor(),
 ])
 
 # Streamlit UI
-st.title("Defect Detection System 🛠️")
-st.write("Upload an image to check if it's normal or defective.")
+st.title("🛠️ Defect Detection System")
+st.write("Upload an image to check if it's **normal** or **defective**.")
 
 uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     # Display uploaded image
     image = Image.open(uploaded_file).convert("RGB")
-    st.image(image, caption='Uploaded Image', use_column_width=True)
+    st.image(image, caption='Uploaded Image', use_container_width=True)
 
     # Preprocess the image
     img = transform(image)
