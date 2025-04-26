@@ -1,2 +1,7 @@
-torch torchvision
+streamlit
+torch
+torchvision
 opencv-python
+numpy
+Pillow
+scikit-learn
