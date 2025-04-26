@@ -5,7 +5,6 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 import numpy as np
-import cv2
 
 # Load the trained model
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
