@@ -1,5 +1,7 @@
 import os
-os.environ["STREAMLIT_WATCHER_IGNORE_FILES"] = ".*\.py$"
+os.environ["STREAMLIT_DEV_WATCHDOG"] = "false"
+
+os.environ["STREAMLIT_WATCHER_IGNORE_FILES"] = r".*\.py$"
 
 import streamlit as st
 import torch
@@ -7,6 +9,7 @@ import torch.nn as nn
 import torchvision.transforms as transforms
 from PIL import Image
 import numpy as np
+
 
 # Load the trained model (Cache to prevent reloading on every refresh)
 @st.cache_resource
